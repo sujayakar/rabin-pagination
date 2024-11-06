@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { decodeId } from "./idEncoding";
+import { Id } from "./_generated/dataModel";
 
 export const list = query({
   args: {},
@@ -16,29 +17,17 @@ export const paginateMessages = query({
     start: v.number(),
     log2PageSize: v.number(),
   },
-  handler: async (ctx, args) => {
-    // Creation time descending.
-    const mask = (1 << args.log2PageSize) - 1;
-
+  handler: async (ctx, args) => {    
     const stream = ctx.db.query("messages")
-      .withIndex("by_creation_time", q => q.lt("_creationTime", args.start))
-      .order("desc");
-
+      .withIndex("by_creation_time", q => q.gt("_creationTime", args.start));
     const results = [];
     let pageBoundary: number | null = null;
     for await (const message of stream) {
       results.push(message)
-
-      const { internalId } = decodeId(message._id);
-
-      // We have 14 bytes of high quality randomness followed by 2 bytes of timestamp.
-      // Use the first four bytes as an unsigned integer.      
-      const randomInt = new DataView(internalId.buffer).getUint32(0, true);
-            
-      if ((randomInt & mask) === mask) {
+      if (isPageBoundary(message._id, args.log2PageSize)) {
         pageBoundary = message._creationTime;
         break;
-      }
+      }    
     }
     console.log("numResults", results.length);
     return {
@@ -47,6 +36,16 @@ export const paginateMessages = query({
     };
   }
 })
+
+function isPageBoundary(id: Id<any>, log2PageSize: number) {
+  const mask = (1 << log2PageSize) - 1;
+  const { internalId } = decodeId(id);
+
+  // We have 14 bytes of high quality randomness followed by 2 bytes of timestamp.
+  // Use the first four bytes as an unsigned integer.      
+  const randomInt = new DataView(internalId.buffer).getUint32(0, true);  
+  return (randomInt & mask) === mask;
+}
 
 export const populate = mutation({
   args: { count: v.number() },
@@ -64,3 +63,13 @@ export const send = mutation({
     await ctx.db.insert("messages", { body, author });
   },
 });
+
+
+export const clearAll = mutation({
+  handler: async (ctx) => {
+    const documents = await ctx.db.query("messages").collect();
+    for (const doc of documents) {
+      await ctx.db.delete(doc._id);
+    }
+  }
+})
