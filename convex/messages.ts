@@ -17,7 +17,7 @@ export const paginateMessages = query({
     start: v.number(),
     log2PageSize: v.number(),
   },
-  handler: async (ctx, args) => {    
+  handler: async (ctx, args) => {
     const stream = ctx.db.query("messages")
       .withIndex("by_creation_time", q => q.gt("_creationTime", args.start));
     const results = [];
@@ -27,7 +27,7 @@ export const paginateMessages = query({
       if (isPageBoundary(message._id, args.log2PageSize)) {
         pageBoundary = message._creationTime;
         break;
-      }    
+      }
     }
     console.log("numResults", results.length);
     return {
@@ -42,8 +42,8 @@ function isPageBoundary(id: Id<any>, log2PageSize: number) {
   const { internalId } = decodeId(id);
 
   // We have 14 bytes of high quality randomness followed by 2 bytes of timestamp.
-  // Use the first four bytes as an unsigned integer.      
-  const randomInt = new DataView(internalId.buffer).getUint32(0, true);  
+  // Use the first four bytes as an unsigned integer.
+  const randomInt = new DataView(internalId.buffer).getUint32(0, true);
   return (randomInt & mask) === mask;
 }
 
