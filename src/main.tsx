@@ -5,14 +5,13 @@ import { ConvexProvider, ConvexReactClient } from "convex/react";
 import App from "./App.tsx";
 import "./index.css";
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
+export const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
+// TODO: Reenable StrictMode
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
     <ThemeProvider attribute="class">
       <ConvexProvider client={convex}>
         <App />
       </ConvexProvider>
     </ThemeProvider>
-  </React.StrictMode>,
 );
