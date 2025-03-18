@@ -1,5 +1,5 @@
-import { QueryResult } from "./query";
-import { QueryId, PageId } from "./types";
+import { QueryResult } from "../shared/query";
+import { QueryId, PageId } from "../shared/types";
 
 export class QueryResults {
   results: Map<QueryId, { kind: "NotStarted"; } | { kind: "Ready"; result: QueryResult; }> = new Map();

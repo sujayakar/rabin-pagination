@@ -1,8 +1,8 @@
-import { PaginatorCore } from "./core";
-import { IndexRangeBounds, Page, PageId, QueryId } from "./types";
+import { PaginatorCore } from "../browser/core";
+import { IndexRangeBounds, Page, PageId, QueryId } from "../shared/types";
 import { useEffect, useState } from "react";
-import { CoreRequest, CoreResponse, PageTransition } from "./protocol";
-import { QueryResult } from "./query";
+import { CoreRequest, CoreResponse, PageTransition } from "../browser/protocol";
+import { QueryResult } from "../shared/query";
 import { BaseConvexClient, QueryToken } from "convex/browser";
 import { FunctionReference, getFunctionName } from "convex/server";
 import { Value } from "convex/values";

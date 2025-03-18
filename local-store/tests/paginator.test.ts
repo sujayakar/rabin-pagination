@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { PaginatorCore } from './core';
-import { api } from "../convex/_generated/api"
-import { PageTransition } from './protocol';
-import { MAXIMAL_KEY, MINIMAL_KEY } from './types';
+import { PaginatorCore } from '../browser/core';
+import { api } from "../../convex/_generated/api"
+import { PageTransition } from '../browser/protocol';
+import { MAXIMAL_KEY, MINIMAL_KEY } from '../shared/types';
 
 describe('Paginator', () => {
   it('should be able to paginate messages', () => {
     const paginator = new PaginatorCore(
-      api.messages.paginateMessages,
+      api.messages.resolver,
       ["_creationTime"]
     );
     const responses1 = paginator.receive({

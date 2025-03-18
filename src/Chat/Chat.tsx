@@ -3,17 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useMutation } from "convex/react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { api } from "../../convex/_generated/api";
 import { MessageList } from "@/Chat/MessageList";
 import { Message } from "@/Chat/Message";
-import { ConvexClient } from "convex/browser";
 
-import { Paginator } from "../../ls-paginator/paginator";
+import { Paginator } from "../../local-store/react/paginator";
+import { Doc } from "../../convex/_generated/dataModel";
 
 export const paginator = new Paginator(
   import.meta.env.VITE_CONVEX_URL as string,
-  api.messages2.resolver,
+  api.messages.resolver,
   ["_creationTime"]
 );
 
@@ -28,16 +28,17 @@ export function Chat({ viewer }: { viewer: string }) {
   const [newMessageText, setNewMessageText] = useState("");
   const sendMessage = useMutation(api.messages.send);
 
+  const [numRows, setNumRows] = useState(10);
   const results = paginator.useQuery(
     query,
-    "asc",
-    10
+    "desc",
+    numRows
   );
-  console.log('results', results);
-
-  const [numRows, setNumRows] = useState(10);
-
-  const messages: any[] = [];
+  let loading = !results || results.kind === "loading";
+  let messages: Doc<"messages">[] = [];
+  if (results?.kind === "loaded" && results.status === "success") {
+    messages = results.value;
+  }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -70,7 +71,7 @@ export function Chat({ viewer }: { viewer: string }) {
         </form>
 
       </div>
-      <Button onClick={() => setNumRows(numRows + 10)}>{true ? "Loading..." : "Load More"}</Button>
+      <Button onClick={() => setNumRows(numRows + 10)}>{loading ? "Loading..." : "Load More"}</Button>
       <Button onClick={() => clearAll()}>Clear all</Button>
     </>
   );

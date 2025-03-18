@@ -1,5 +1,5 @@
-import { Query, QueryResult } from "./query";
-import { QueryId, PageId, Page, PageArguments } from "./types";
+import { Query, QueryResult } from "../shared/query";
+import { QueryId, PageId, Page, PageArguments } from "../shared/types";
 
 export type PageTransition = { kind: "success"; result: Page; }
   | { kind: "error"; errorMessage: string; errorData: any; }

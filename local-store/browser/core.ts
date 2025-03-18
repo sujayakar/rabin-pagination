@@ -1,8 +1,8 @@
-import { compareKeys, compareValues, maximalKey, minimalKey } from "./compare";
+import { compareKeys, compareValues, maximalKey, minimalKey } from "../shared/compare";
 import { createQueryToken } from "./queryTokens";
 import { QueryResults } from "./queryResults";
-import { IndexRangeBounds, QueryId, PageId, Page, PageArguments, Key, IndexPrefix, IndexKey } from "./types";
-import { Query, QueryResult } from "./query";
+import { IndexRangeBounds, QueryId, PageId, Page, PageArguments, Key, IndexPrefix, IndexKey } from "../shared/types";
+import { Query, QueryResult } from "../shared/query";
 import { CoreRequest, CoreResponse } from "./protocol";
 import { FunctionReference, GenericDocument } from "convex/server";
 
