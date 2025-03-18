@@ -409,6 +409,7 @@ export class PaginatorCore {
       for (const queryId of invalidatedQueryIds) {
         queryIds.add(queryId);
       }
+      console.log("advanceSnapshots", pageId, page);
       this.pages.set(pageId, page);
     }
     this.queryResults.debug();

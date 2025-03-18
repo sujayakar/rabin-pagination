@@ -1,5 +1,3 @@
-/* prettier-ignore-start */
-
 /* eslint-disable */
 /**
  * Generated `api` utility.
@@ -17,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as idEncoding from "../idEncoding.js";
 import type * as messages from "../messages.js";
+import type * as messages2 from "../messages2.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -29,6 +28,7 @@ import type * as messages from "../messages.js";
 declare const fullApi: ApiFromModules<{
   idEncoding: typeof idEncoding;
   messages: typeof messages;
+  messages2: typeof messages2;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
@@ -38,5 +38,3 @@ export declare const internal: FilterApi<
   typeof fullApi,
   FunctionReference<any, "internal">
 >;
-
-/* prettier-ignore-end */

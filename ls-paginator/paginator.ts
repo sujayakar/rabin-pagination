@@ -15,6 +15,7 @@ export class Paginator {
 
   querySubscriptions: Map<QueryId, (result: QueryResult) => void> = new Map();
 
+  // TODO: Make this many to many?
   pageSubscriptions: Map<PageId, PageSubscription> = new Map();
   pageByQueryToken: Map<QueryToken, PageId> = new Map();
 
@@ -32,6 +33,9 @@ export class Paginator {
     const [result, setResult] = useState<QueryResult | undefined>();
     useEffect(() => {
       const queryId = crypto.randomUUID();
+      this.querySubscriptions.set(queryId, (result) => {
+        setResult(result);
+      });
       this.sendRequest({
         kind: "addSyncQuery",
         queryId,
@@ -41,15 +45,12 @@ export class Paginator {
           order,
         },
       });
-      this.querySubscriptions.set(queryId, (result) => {
-        setResult(result);
-      });
       return () => {
-        this.querySubscriptions.delete(queryId);
         this.sendRequest({
           kind: "removeSyncQuery",
           queryId,
         });
+        this.querySubscriptions.delete(queryId);
       }
     }, [indexRange, order, count]);
     return result;
@@ -59,6 +60,10 @@ export class Paginator {
     const pages = new Map<PageId, PageTransition>();
     for (const queryToken of updatedQueries) {
       let pageTransition: PageTransition;
+      const pageId = this.pageByQueryToken.get(queryToken);
+      if (!pageId) {
+        throw new Error(`Page not found for query token ${queryToken}`);
+      }
       try {
         const result = (this.convex as any).localQueryResultByToken(queryToken);
         if (!result) {
@@ -66,7 +71,13 @@ export class Paginator {
         }
         pageTransition = {
           kind: "success",
-          result,
+          result: {
+            pageId,
+            state: {
+              kind: "loaded",
+              value: result,
+            },
+          },
         }
       } catch (e: any) {
         pageTransition = {
@@ -74,10 +85,6 @@ export class Paginator {
           errorMessage: e.message,
           errorData: e.data,
         }
-      }
-      const pageId = this.pageByQueryToken.get(queryToken);
-      if (!pageId) {
-        throw new Error(`Page not found for query token ${queryToken}`);
       }
       pages.set(pageId, pageTransition);
     }
@@ -89,11 +96,13 @@ export class Paginator {
   }
 
   private sendRequest(request: CoreRequest) {
+    console.log("sendRequest", request,);
     const responses = this.core.receive(request);
     this.handleResponses(responses);
   }
 
   private handleResponses(responses: CoreResponse[]) {
+    console.log("handleResponses", responses);
     for (const response of responses) {
       switch (response.kind) {
         case "uiTransition": {
